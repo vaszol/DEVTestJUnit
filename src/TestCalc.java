@@ -1,10 +1,12 @@
 
 // Еще одна "вкусность" Java 5 - можно импортировать static-методы
 import org.junit.Test;
-import org.junit.runner.Description;
+import org.junit.Before;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.runner.JUnitCore;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,40 +16,45 @@ public class TestCalc {
     @Test
     public void getSumTest() {
         Calc c = new Calc();
-        // Этот метод вызовет исключение, если результат нашего калькулятора будет отличен от 50
-        assertEquals(c.getSum(20, 30), 50);
+        assertEquals(50, c.getSum(20, 30));
     }
 
     @Test
     public void getSubtractionTest() {
         Calc c = new Calc();
-        // Этот метод вызовет исключение, если результат нашего калькулятора будет отличен от -10
         assertEquals(-10, c.getSubtraction(20, 30));
+    }
+
+    @BeforeClass
+    public static void allTestsStarted() {
+        System.out.println("All tests started");
+    }
+
+    @AfterClass
+    public static void allTestsFinished() {
+        System.out.println("All tests finished");
+    }
+
+    @Before
+    public void testStarted() {
+        System.out.println("Started");
+    }
+
+    @After
+    public void testFinished() {
+        System.out.println("Finished");
+    }
+
+    @Test
+    // Обратите внимание аннотацию - она говорит, что тест будет проигнорирован. Если ее убрать,
+    // то сообщение появиться
+    @Ignore
+    public void testIgnored() {
+        System.out.println("Ignored test");
     }
 
     public static void main(String[] args) {
         JUnitCore core = new JUnitCore();
-        // Вот подключение нашего собственного слушателя/листенера
-        core.addListener(new CalcListener());
         core.run(TestCalc.class);
-    }
-}
-
-// А вот его реализация
-class CalcListener extends RunListener {
-
-    @Override
-    public void testStarted(Description desc) {
-        System.out.println("Started:" + desc.getDisplayName());
-    }
-
-    @Override
-    public void testFinished(Description desc) {
-        System.out.println("Finished:" + desc.getDisplayName());
-    }
-
-    @Override
-    public void testFailure(Failure fail) {
-        System.out.println("Failed:" + fail.getDescription().getDisplayName() + " [" + fail.getMessage() + "]");
     }
 }
