@@ -1,55 +1,57 @@
-
-// Еще одна "вкусность" Java 5 - можно импортировать static-методы
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-
 import org.junit.runner.JUnitCore;
-
 import org.junit.runner.Description;
-import org.junit.runner.Request;
+import org.junit.runner.RunWith;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.Failure;
+import org.junit.runners.Parameterized;
+import static org.junit.runners.Parameterized.Parameters;
 
-
+@RunWith(Parameterized.class)
 public class TestCalc {
-    // Обратите внимание на название - оно теперь сделано таким для соблюдения порядка
+    // Обратите внимание на данные в скобках - первый два - числа, которые складываем/вычитаем
+    // Вторые - это их сумма и разность
 
-    @Test
-    public void get001SumTest() {
-        Calc c = new Calc();
-        assertEquals(50, c.getSum(20, 30));
+    @Parameters
+    public static Collection data() {
+        return Arrays.asList(new Object[][]{
+                {5, 3, 8, 2},
+                {15, 10, 25, 5},
+                {5, 10, 15, -5}
+        });
+    }
+    int x1, x2, sum, sub;
+
+    public TestCalc(int x1, int x2, int sum, int sub) {
+        this.x1 = x1;
+        this.x2 = x2;
+        this.sum = sum;
+        this.sub = sub;
     }
 
-    // Обратите внимание на название - оно теперь сделано таким для соблюдения порядка
     @Test
-    public void get002SubtractionTest() {
+    public void getSumTest() {
         Calc c = new Calc();
-        assertEquals(-10, c.getSubtraction(20, 30));
+        assertEquals(sum, c.getSum(x1, x2));
     }
 
-    // Метод возвращает компаратор, который позволяет отсортировать методы в алфавитном порядке
-    private static Comparator forward() {
-        return new Comparator() {
-
-            public int compare(Object o1, Object o2) {
-                Description d1 = (Description) o1;
-                Description d2 = (Description) o2;
-                return d1.getDisplayName().compareTo(d2.getDisplayName());
-            }
-        };
+    @Test
+    public void getSubtractionTest() {
+        Calc c = new Calc();
+        assertEquals(sub, c.getSubtraction(x1, x2));
     }
 
     public static void main(String[] args) {
         JUnitCore core = new JUnitCore();
         core.addListener(new CalcListener());
-        // Обратите внимание на этот вызов - ниже немного комментариев
-        core.run(Request.aClass(TestCalc.class).sortWith(forward()));
+        core.run(TestCalc.class);
     }
 }
 
-// Ну здесь по идее должно быть все понятно
 class CalcListener extends RunListener {
 
     @Override
